@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45deg 29% 97%;
+    --foreground: 0deg 0% 25.1%;
+
+    --muted: 210deg 40% 96.1%;
+    --muted-foreground: 215deg.4 16.3% 46.9%;
+
+    --popover: 0deg 0% 100%;
+    --popover-foreground: 324deg 5% 19%;
+
+    --card: 0deg 0% 100%;
+    --card-foreground: 324deg 5% 19%;
+
+    --border: 324deg 5% 19%;
+    --input: 214deg.3 31.8% 91.4%;
+
+    --primary: 324deg 5% 19%;
+    --primary-foreground: 210deg 40% 98%;
+
+    --secondary: 139deg 31% 86%;
+    --secondary-foreground: 324deg 5% 19%;
+
+    --accent: 8deg 90% 84%;
+    --accent-foreground: 324deg 5% 19%;
+
+    --destructive: 0deg 84.2% 60.2%;
+    --destructive-foreground: 210deg 40% 98%;
+
+    --ring: 8deg 90% 84%;
+
+    --radius: 0.5rem;
+    --navbar-height: 5.5rem;
+    --main-content: calc(95dvh - var(--navbar-height));
+
+    
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  article {
+    @apply block md:min-h-[calc(95dvh-var(--navbar-height))];
+  }
+  p {
+    @apply block;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.AccordionContent[data-state="open"] {
+  animation: slideDown 300ms ease-out;
+}
+.AccordionContent[data-state="closed"] {
+  animation: slideUp 300ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
