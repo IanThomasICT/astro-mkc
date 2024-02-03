@@ -2,8 +2,8 @@ import { forwardRef } from "react";
 
 import { cn } from "@/lib/utils";
 
-type Variant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
-type Size = 'default' | 'sm' | 'lg' | 'icon'
+type Variant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+type Size = "default" | "sm" | "lg" | "icon";
 
 const buttonVariants = {
   base: "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -21,11 +21,11 @@ const buttonVariants = {
     lg: "h-11 rounded-md px-8",
     icon: "h-10 w-10",
   },
-}
+};
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant,
-  size?: Size,
+  variant?: Variant;
+  size?: Size;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, ...props }, ref) => {

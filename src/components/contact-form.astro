@@ -1,36 +1,35 @@
 ---
-import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Textarea } from "./ui/textarea"
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
-const { class: className } = Astro.props
+const { class: className } = Astro.props;
 ---
 
 <div class={className}>
-    <form class='w-full space-y-4'>
+  <form class='w-full space-y-4'>
     <div class='grid gap-4 sm:grid-cols-2'>
-        <div>
-            <label for="firstName" class='block text-lg sm:text-xl'>First name</label>
-            <Input name="firstName" className='border border-neutral-200' />
-        </div>
-        <div>
-            <label for="lastName" class='block text-lg sm:text-xl'>Last name</label>
-            <Input name="lastName" className='border border-neutral-200' />
-        </div>
+      <div>
+        <label for='firstName' class='block text-lg sm:text-xl'>First name</label>
+        <Input name='firstName' className='border border-neutral-200' />
+      </div>
+      <div>
+        <label for='lastName' class='block text-lg sm:text-xl'>Last name</label>
+        <Input name='lastName' className='border border-neutral-200' />
+      </div>
     </div>
     <div>
-        <label for="email" class='block text-lg sm:text-xl'>Email</label>
-        <Input name="email" className='border border-neutral-200' />
+      <label for='email' class='block text-lg sm:text-xl'>Email</label>
+      <Input name='email' className='border border-neutral-200' />
     </div>
     <div>
-        <label for="phone" class='block text-lg sm:text-xl'>Phone</label>
-        <Input name="phone" className='border border-neutral-200' />
+      <label for='phone' class='block text-lg sm:text-xl'>Phone</label>
+      <Input name='phone' className='border border-neutral-200' />
     </div>
 
-    <label for="comments" class='block text-lg sm:text-xl'>Comments</label>
-    <Textarea name="comments" className='resize-none border border-neutral-200' />
-    <Button type='submit' size={"lg"} className='text-sm sm:text-base'>
-        Submit
-    </Button>
-    </form>
-</div>  
+    <label for='comments' class='block text-lg sm:text-xl'>Comments</label>
+    <Textarea name='comments' className='resize-none border border-neutral-200' />
+    <Button type='submit' size={"lg"} className='text-sm sm:text-base'> Submit </Button>
+  </form>
+</div>
+

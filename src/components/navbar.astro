@@ -1,38 +1,46 @@
 ---
-import { siteConfig } from "@/config/site";
+import { siteConfig } from "@/lib/config/site";
 import { cn } from "@/lib/utils";
 import FacebookIcon from "@/assets/icons/facebook.svg";
 import LinkedInIcon from "@/assets/icons/linkedin.svg";
-import NavigationMenu from "./nav-menu";
 
 type Props = {
   class?: string;
 };
 
 const socialLinks = siteConfig.links.social;
-const path = Astro.url.pathname
+const path = Astro.url.pathname;
+
+const navLinks = siteConfig.mainNav;
 ---
 
-<div
-  class={cn(
-    "inset-x-0 top-0 z-20 flex h-full max-h-[--navbar-height] items-center justify-around gap-4 border-b border-b-primary/10 bg-background px-3 py-1",
-    Astro.props.class,
-    path === "/evaluation-form" ? "" : "sticky",
-  )}>
+<div class={cn("inset-x-0 top-0 z-20 flex h-full max-h-[--navbar-height] items-center justify-around gap-4 border-b border-b-primary/10 bg-background px-3 py-1", Astro.props.class, path === "/evaluation-form" ? "" : "sticky")}>
   <a href='/' class='mr-auto hidden sm:block'>
     <img src='/images/logo.png' alt='mkc services company logo' class='h-[var(--navbar-height)]' />
   </a>
 
-  <NavigationMenu client:load />
-  
-  <div class='h-2/5 w-[1px] bg-primary/30' />
-  
-  <span class='flex'>
+  <div class='relative z-10 flex max-w-max flex-1 items-center justify-center'>
+    <ul class='group flex flex-1 list-none items-center justify-center space-x-1 gap-6 text-lg'>
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            class={cn("group inline-flex w-max px-1 py-0.5 text-primary/90 font-medium transition-colors hover:text-accent focus:border-b-2 focus:border-b-accent/80 focus:text-accent focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:text-accent data-[active]:border-b-accent data-[active]:border-b-2", path === link.href && "border-b-2 border-b-accent text-accent")}>
+            {link.title}
+          </a>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class='h-2/5 w-[1px] bg-primary/30'></div>
+
+  <span class='flex gap-2'>
     <a href={socialLinks.linkedIn} class='py-1.5'>
-      <img src={LinkedInIcon.src} class='w-10 fill-primary/80 font-extralight text-transparent hover:fill-black' />
+      <img src={LinkedInIcon.src} class='h-6 w-6 fill-primary/60 font-extralight text-transparent hover:fill-black' />
     </a>
     <a href={socialLinks.facebook} class='py-1.5'>
-      <img src={FacebookIcon.src} class='w-10 fill-primary/80 font-extralight text-transparent hover:fill-black' />
+      <img src={FacebookIcon.src} class='h-6 w-6 fill-primary/60 font-extralight text-transparent hover:fill-black' />
     </a>
   </span>
 </div>
