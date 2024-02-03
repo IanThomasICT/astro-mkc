@@ -1,0 +1,34 @@
+--- 
+import "@fontsource/bitter";
+import "@fontsource/inter";
+import "@fontsource/league-spartan";
+import "../global.css";
+
+import Navbar from '@/components/navbar.astro';
+import TailwindIndicator from '@/components/tailwind-indicator.astro';
+
+const description = "Intervention to help a person or family overcome problems. The goal is to improve an individual's mental health or a family's well-being and reduce or resolve troubling behaviors, beliefs, and thoughts and to improve relationships, social skills, and functioning.";
+const keywords = "Counseling, MKC-Counseling, counseling, counselor, family counselor, family counseling, individual counselor, individual counseling, special needs children counselor, special needs children counseling, play therapy, TBRI, Trust Based Relational Intervention, Trust Based Relational Intervention Practitioner, Attachment Work, Trauma Work, TIPS-MAPP, Trauma Focused Cognitive Behavioral Therapy, Certified Youth Mental Health, Certified Play Therapist, Theraplay counselor, Theraplay counseling, Theraplay, Trainer of Sunshine Circles, therapists who take medicaid, therapists who take medicaid ks,";
+
+---
+
+<html lang="en">
+	<head>
+    <meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/ico" href="/favicon.ico" />
+		<title>MKC - Services | Wichita, KS</title>
+	</head>
+  <body class="relative grid overflow-x-hidden bg-white-diamond font-sans">
+      <div class='absolute inset-0 bg-background/30' />
+      <Navbar class='sm:px-24' />
+      <main class='z-10 mx-auto grid gap-36 lg:max-w-[90rem]'>
+        <slot />
+      </main>
+
+      <TailwindIndicator />
+	</body>
+</html>

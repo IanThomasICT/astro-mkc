@@ -1,16 +1,15 @@
 ---
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
-import FacebookIcon from "lucide-static/icons/facebook";
-import LinkedInIcon from "lucide-static/icons/linkedin";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "./ui/navigation-menu";
+import FacebookIcon from "@/assets/icons/facebook.svg";
+import LinkedInIcon from "@/assets/icons/linkedin.svg";
+import NavigationMenu from "./nav-menu";
 
 type Props = {
   class?: string;
 };
 
 const socialLinks = siteConfig.links.social;
-const navLinks = siteConfig.mainNav;
 const path = Astro.url.pathname
 ---
 
@@ -23,24 +22,17 @@ const path = Astro.url.pathname
   <a href='/' class='mr-auto hidden sm:block'>
     <img src='/images/logo.png' alt='mkc services company logo' class='h-[var(--navbar-height)]' />
   </a>
-  <NavigationMenu client:on-load>
-    <NavigationMenuList class='gap-6 text-lg'>
-      {navLinks.map((link) => (
-        <NavigationMenuItem key={link.href}>
-          <a href={link.href}>
-            <NavigationMenuLink class={(navigationMenuTriggerStyle(), path === link.href ? "border-b-2 border-b-accent text-accent" : "")}>{link.title}</NavigationMenuLink>
-          </a>
-        </NavigationMenuItem>
-      ))}
-    </NavigationMenuList>
-  </NavigationMenu>
+
+  <NavigationMenu client:load />
+  
   <div class='h-2/5 w-[1px] bg-primary/30' />
+  
   <span class='flex'>
     <a href={socialLinks.linkedIn} class='py-1.5'>
-      <LinkedInIcon class='w-10 fill-primary/80 font-extralight text-transparent hover:fill-black' />
+      <img src={LinkedInIcon.src} class='w-10 fill-primary/80 font-extralight text-transparent hover:fill-black' />
     </a>
     <a href={socialLinks.facebook} class='py-1.5'>
-      <FacebookIcon class='w-10 fill-primary/80 font-extralight text-transparent hover:fill-black' />
+      <img src={FacebookIcon.src} class='w-10 fill-primary/80 font-extralight text-transparent hover:fill-black' />
     </a>
   </span>
 </div>

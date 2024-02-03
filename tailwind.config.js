@@ -1,3 +1,5 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -10,9 +12,9 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
-        mono: ["var(--font-mono)", ...fontFamily.mono],
-        inter: ["var(--font-inter)", ...fontFamily.mono],
+        sans: ["League Spartan", ...defaultTheme.fontFamily.sans],
+        mono: ["Bitter", ...defaultTheme.fontFamily.mono],
+        inter: ["Inter", ...defaultTheme.fontFamily.mono],
       },
       backgroundImage: {
         "white-diamond": "url('/images/white-diamond-background.png')",

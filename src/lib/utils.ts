@@ -21,3 +21,10 @@ export function toUSDateStr(dateStr: string): string {
     return dateStr;
   }
 }
+
+export function getWindowLocation() {
+  if (typeof window !== "undefined") {
+    return window.location
+  }
+  return undefined
+}
