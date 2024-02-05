@@ -1,0 +1,75 @@
+---
+import XIcon from "@/assets/icons/x.svg";
+import { BooleanInput, FormInput } from "@/components/form";
+import Button from "./button.astro";
+import { Label } from "./ui/label";
+---
+
+<script>
+  const deviceWidth = window ? window.innerWidth : 400;
+  const isLargeDevice = deviceWidth > 500;
+</script>
+
+<h2 class='text-base font-medium md:text-xl'>Client Information</h2>
+<section class='space-y-4'>
+  <div class='grid gap-4 lg:grid-cols-4 items-end'>
+    <FormInput fieldName='clientName' />
+    <FormInput fieldName='clientDateOfBirth' label='Date of Birth' type='date' />
+    <BooleanInput fieldName='hasGuardian' label='Does the client have a guardian?' className='col-span-2' />
+  </div>
+  <!-- <BooleanInput fieldName='isClientAMinor' label='Is the client a minor?' /> -->
+  <BooleanInput fieldName='isInFosterCare' label='Is the client currently in foster care?' />
+  <h2 class='mt-4 text-base font-medium md:text-xl'>Foster Care Information</h2>
+  <section id='foster-care-info' class='grid grid-cols-4 gap-4'>
+    <FormInput fieldName='fosterCareInfo.caseWorkerName' label='Case Worker Name' />
+    <FormInput fieldName='fosterCareInfo.caseWorkerPhone' label='Case Worker Phone' type='tel' />
+    <FormInput fieldName='fosterCareInfo.caseWorkerEmail' label='Case Worker Email' type='email' />
+  </section>
+</section>
+
+<h2 class='text-base font-medium md:text-xl'>Parent Information</h2>
+<section class='grid grid-cols-4 gap-4'>
+  <FormInput fieldName='parentInfo.name' label='Name' />
+  <FormInput fieldName='parentInfo.address' label='Address' />
+  <FormInput fieldName='parentInfo.phone' label='Phone' type='tel' />
+  <FormInput fieldName='parentInfo.email' label='Email' type='email' />
+</section>
+
+<BooleanInput fieldName='insuranceProviderIsMedicaid' label='Is your provider Medicaid?' />
+<section id='insurance-info' hidden>
+  <h3 class='border-b py-4 pr-4 text-lg font-medium md:text-xl'>Primary Insurance</h3>
+  <div class='grid max-w-xs gap-3 lg:max-w-sm'>
+    <div class='flex items-center gap-6'>
+      <Label className='min-w-[7rem] text-sm lg:text-base'>Policyholder</Label>
+      <select name='primaryInsurance.policyholder' class='h-7 border border-border/30 text-sm'>
+        <option value='client'>Client</option>
+        <option value='parent'>Parent</option>
+      </select>
+    </div>
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredName' label='Insured Name' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredDOB' label='Insured DOB' type='date' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredAddress' label='Insured Address' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredSSN' label='Insured SSN' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredEmployer' label='Insured Employer' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insurancePlan' label='Insurance Plan' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceMemberID' label='Member ID' inputMode='numeric' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceCopay' label='Copay' inputMode='numeric' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceDeductible' label='Deductible' inputMode='numeric' />
+    <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.requiresPreAuthorization' oneLine label='Requires Pre-Authorization?' type='checkbox' />
+
+    <div id='secondary-insurance' class='grid gap-3'>
+      <h3 class='inline-flex justify-between border-b py-4 text-lg font-medium md:text-xl'>
+        Secondary Insurance{" "}
+        <button onclick='hideSecondaryInsurance()'>
+          <img src={XIcon.src} class='h-4 w-4 text-neutral-500 hover:text-neutral-900' />
+        </button>
+      </h3>
+      <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insurancePlan' label='Insurance Plan' />
+      <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceMemberID' label='Member ID' inputMode='numeric' />
+      <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceCopay' label='Copay' inputMode='numeric' />
+      <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceDeductible' label='Deductible' inputMode='numeric' />
+      <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.requiresPreAuthorization' oneLine label='Requires Pre-Authorization?' type='checkbox' />
+    </div>
+    <Button id='add-secondary-insurance' variant={"outline"} size={"lg"} class='my-4 max-w-fit border-border/30 bg-accent/20 shadow hover:bg-accent/20 lg:bg-background' type='button' onclick='addSecondaryInsurance'> Add Secondary Insurance </Button>
+  </div>
+</section>

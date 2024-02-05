@@ -1,0 +1,19 @@
+---
+import Button from "@/components/button.astro";
+import Layout from "../_layout.astro";
+
+import CheckCircle from "@/assets/icons/check-circle.svg";
+---
+
+<Layout title='Psych Evaluation Form'>
+  <div class='h-full py-2 font-inter lg:mx-auto lg:min-h-[100dvh] lg:w-[50dvw] lg:py-8'>
+    <div class='h-full grow space-y-8 bg-background py-10 text-center font-sans lg:rounded-lg lg:py-36'>
+      <h1 class='text-3xl'>Thank you for submitting the evaluation form!</h1>
+      <p class='text-balance mx-auto w-4/5 text-lg italic'>We will look over the information and reach out soon with more information regarding your requested psychological evaluation.</p>
+      <img src={CheckCircle.src} class='mx-auto h-28 w-28 rounded-full text-green-700' />
+      <a href='/' class='block'>
+        <Button class='border-neutral-200' variant={"outline"}> Back to Home </Button>
+      </a>
+    </div>
+  </div>
+</Layout>
