@@ -1,10 +1,51 @@
 ---
-import Button from "@/components/button.astro";
-import Layout from "../_layout.astro";
-import { Loader2 } from "lucide-react";
 import XIcon from "@/assets/icons/x.svg";
+import Button from "@/components/button.astro";
 import { FormInput } from "@/components/form";
 import { Label } from "@/components/ui/label";
+import { formSchema } from "@/types";
+import { Loader2 } from "lucide-react";
+import { ZodError } from "zod";
+import Layout from "../_layout.astro";
+import Submitted from "./_submitted.astro";
+
+
+const { status } = Astro.params;
+const isSubmitted = status === "submitted";
+
+console.log(isSubmitted, Astro.params)
+
+// Handle form submission
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+
+    function parseFormData(formData: FormData) {
+      let d: Record<string, any> = {};
+      formData.forEach((v, k) => {
+        if (k.includes(".")) {
+          const [parent, prop] = k.split(".");
+          d[parent] = { ...d[parent], [prop]: v };
+        } else {
+          d[k] = v;
+        }
+      });
+      return d;
+    }
+
+    const parsed = parseFormData(formData);
+
+    let data = await formSchema.parse(parsed);
+    const d = data.clientDateOfBirth;
+    data.isClientAMinor = new Date() < new Date(d.getUTCFullYear() + 18, d.getUTCMonth(), d.getUTCDate());
+
+    console.log(data);
+  } catch (error) {
+    if (error instanceof Error || error instanceof ZodError) {
+      console.error(error.message);
+    }
+  }
+}
 ---
 
 <script>
@@ -20,12 +61,22 @@ import { Label } from "@/components/ui/label";
       $("#foster-care-info").fadeToggle({
         duration: 300,
       });
+      if ((target as HTMLInputElement).value === "true") {
+        $("input[name^='fosterCareInfo.']").attr("required", "true");
+      } else {
+        $("input[name^='fosterCareInfo.']").removeAttr("required");
+      }
     });
 
     $("input[name='insuranceProviderIsMedicaid']").on("change", ({ target }) => {
       $("#insurance-info").fadeToggle({
         duration: 300,
       });
+      if ((target as HTMLInputElement).value === "false") {
+        $("input[name^='primaryInsurance.']").attr("required", "true");
+      } else {
+        $("input[name^='primaryInsurance.']").removeAttr("required");
+      }
     });
 
     $("#btn-add-insurance").on("click", function () {
@@ -45,144 +96,124 @@ import { Label } from "@/components/ui/label";
 </script>
 
 <Layout title='Psych Evaluation Form' description='Fill out our form to schedule an appointment for a psychological evaluation' keywords='psychological evaluation, form, appointment'>
-  <div class='h-full py-2 font-sans flex w-full lg:mx-auto lg:min-h-[100dvh] lg:w-[90dvw] lg:py-8'>
-    <aside id='sidebar' class='text-white border-b shrink border-neutral-200/60 p-3 shadow-inner h-full max-w-fit rounded-l-lg border-r bg-primary/90 px-3 shadow-neutral-800'>
-      <!-- <h2 class='py-1 text-center text-xl font-semibold lg:hidden'>Evaluation Form</h2> -->
-      <!-- <div class='flex min-h-[3rem] items-center justify-evenly gap-2 md:gap-8 lg:mt-20 lg:flex-col lg:items-start'>
-        <a href='#client' class='px-4'>Client</a>
-        <div class='h-[1px] w-full bg-neutral-400/50 sm:hidden'></div>
-        <a href='#contact' class='px-4'>Contact</a>
-        <div class='h-[1px] w-full bg-neutral-400/50 sm:hidden'></div>
-        <a href='#insurance' class='px-4'>Insurance</a>
-      </div> -->
-    </aside>
+  {
+    isSubmitted ? <Submitted /> : 
+      <div class='py-2 font-sans flex w-full lg:mx-auto lg:w-[90dvw] lg:py-8'>
+      <aside id='sidebar' class='text-white border-b shrink border-neutral-200/60 p-3 shadow-inner h-full max-w-fit rounded-l-lg border-r bg-primary/90 px-3 shadow-neutral-800'>
 
-    <div class='grow bg-background border border-neutral-200/60 rounded-sm p-8 space-y-4'>
-      <h1 class='text-3xl font-semibold'>Request for Psychological Evaluation</h1>
+      </aside>
 
-      <form class='flex flex-col gap-6'>
-        <section class='space-y-2'>
-          <h2 id='client' class='text-base font-medium md:text-xl'>Client Information</h2>
-          <div class='grid gap-4 lg:grid-cols-4 items-end'>
-            <FormInput fieldName='clientName' />
-            <FormInput fieldName='clientDateOfBirth' label='Date of Birth' type='date' />
-            <!-- <BooleanInput id="hasGuardian" fieldName='hasGuardian' label='Does the client have a guardian?' className='col-span-2' /> -->
-            <div class='flex items-center mb-1 gap-4 text-lg col-span-2'>
-              <Label className='md:text-base'>Does the client have a guardian?</Label>
+      <div class='grow bg-background border border-neutral-200/60 rounded-sm p-8 space-y-4'>
+        <h1 class='text-3xl font-semibold'>Request for Psychological Evaluation</h1>
+
+        <form class='flex flex-col gap-6' method='POST'>
+          <section class='space-y-2'>
+            <!-- <h2 id='client' class='text-base font-medium md:text-xl'>Client Information</h2> -->
+            <div class='grid gap-4 lg:grid-cols-4 items-end'>
+              <FormInput fieldName='clientName' required />
+              <FormInput fieldName='clientDateOfBirth' label='Date of Birth' type='date' required />
+              <!-- <BooleanInput id="hasGuardian" fieldName='hasGuardian' label='Does the client have a guardian?' className='col-span-2' /> -->
+              <div class='flex items-center mb-1 gap-4 text-lg col-span-2'>
+                <Label className='md:text-base'>Does the client have a guardian?</Label>
+                <fieldset class='inline-flex gap-2'>
+                  <input name='hasGuardian' type='radio' class='accent-primary' value='true' />
+                  <Label className='text-base leading-1 pr-2'>Yes</Label>
+                  <input id='hasGuardian' name='hasGuardian' type='radio' class='accent-primary' value='false' checked />
+                  <Label className='text-base leading-1'>No</Label>
+                </fieldset>
+              </div>
+            </div>
+            <!-- <BooleanInput id="isClientAMinor" fieldName='isClientAMinor' label='Is the client a minor?' /> -->
+          </section>
+
+          <section class='space-y-2'>
+            <div class='flex items-center mb-1 gap-4 text-lg'>
+              <Label className='md:text-base'>Is the client currently in foster care?</Label>
               <fieldset class='inline-flex gap-2'>
-                <input name='hasGuardian' type='radio' class='accent-primary' value='true' />
+                <input name='isInFosterCare' type='radio' class='accent-primary' value='true' />
                 <Label className='text-base leading-1 pr-2'>Yes</Label>
-                <input id='hasGuardian' name='hasGuardian' type='radio' class='accent-primary' value='false' checked />
+                <input id='isInFosterCare' name='isInFosterCare' type='radio' class='accent-primary' value='false' checked />
                 <Label className='text-base leading-1'>No</Label>
               </fieldset>
             </div>
-          </div>
-          <!-- <BooleanInput id="isClientAMinor" fieldName='isClientAMinor' label='Is the client a minor?' /> -->
-        </section>
 
-        <section class='space-y-2'>
-          <div class='flex items-center mb-1 gap-4 text-lg'>
-            <Label className='md:text-base'>Is the client currently in foster care?</Label>
-            <fieldset class='inline-flex gap-2'>
-              <input name='isInFosterCare' type='radio' class='accent-primary' value='true' />
-              <Label className='text-base leading-1 pr-2'>Yes</Label>
-              <input id='isInFosterCare' name='isInFosterCare' type='radio' class='accent-primary' value='false' checked />
-              <Label className='text-base leading-1'>No</Label>
-            </fieldset>
-          </div>
+            <div transition:animate='fade' id='foster-care-info'>
+              <h2 class='mt-4 text-base font-medium md:text-xl'>Foster Care Information</h2>
+              <fieldset id='case-worker-info' class='grid lg:grid-cols-4 gap-4'>
+                <FormInput fieldName='fosterCareInfo.caseWorkerName' label='Case Worker Name' />
+                <FormInput fieldName='fosterCareInfo.caseWorkerPhone' label='Case Worker Phone' type='tel' />
+                <FormInput fieldName='fosterCareInfo.caseWorkerEmail' label='Case Worker Email' type='email' />
+              </fieldset>
+            </div>
+          </section>
 
-          <div transition:animate='fade' id='foster-care-info'>
-            <h2 class='mt-4 text-base font-medium md:text-xl'>Foster Care Information</h2>
+          <section id='primary-contact' class='space-y-2'>
+            <h2 class='text-base font-medium md:text-xl'>Emergency Contact Information<span class='block text-xs text-neutral-500'>Parent or Guardian for minors</span></h2>
+
             <fieldset class='grid lg:grid-cols-4 gap-4'>
-              <FormInput fieldName='fosterCareInfo.caseWorkerName' label='Case Worker Name' />
-              <FormInput fieldName='fosterCareInfo.caseWorkerPhone' label='Case Worker Phone' type='tel' />
-              <FormInput fieldName='fosterCareInfo.caseWorkerEmail' label='Case Worker Email' type='email' />
+              <FormInput fieldName='primaryContact.name' label='Full name' required />
+              <FormInput fieldName='primaryContact.address' label='Address' required />
+              <FormInput fieldName='primaryContact.phone' label='Phone' type='tel' required />
+              <FormInput fieldName='primaryContact.email' label='Email' type='email' required />
             </fieldset>
-          </div>
-        </section>
+          </section>
 
-        <section class='space-y-2'>
-          <h2 id='contact' class='text-base font-medium md:text-xl'>Parent Information</h2>
-          <fieldset class='grid lg:grid-cols-4 gap-4'>
-            <FormInput fieldName='parentInfo.name' label='Name' />
-            <FormInput fieldName='parentInfo.address' label='Address' />
-            <FormInput fieldName='parentInfo.phone' label='Phone' type='tel' />
-            <FormInput fieldName='parentInfo.email' label='Email' type='email' />
-          </fieldset>
-        </section>
-
-        <section class='space-y-2'>
-          <div class='flex items-center mb-1 gap-4 text-lg'>
-            <Label className='md:text-base'>Is your provider Medicaid?</Label>
-            <fieldset class='inline-flex gap-2'>
-              <input name='insuranceProviderIsMedicaid' type='radio' class='accent-primary' value='true' checked />
-              <Label className='text-base leading-1 pr-2'>Yes</Label>
-              <input id='insuranceProviderIsMedicaid' name='insuranceProviderIsMedicaid' type='radio' class='accent-primary' value='false' />
-              <Label className='text-base leading-1'>No</Label>
-            </fieldset>
-          </div>
-
-          <div transition:animate='fade' id='insurance-info'>
-            <h3 class='py-4 pr-4 text-lg font-medium md:text-xl border-b'>Primary Insurance</h3>
-            <div class='w-[60dvw] py-2 grid gap-2 lg:grid-rows-6 grid-flow-col'>
-              <div class='flex items-center gap-6 pt-2'>
-                <Label className='min-w-[7rem] text-sm lg:text-base'>Policyholder</Label>
-                <select name='primaryInsurance.policyholder' class='h-7 px-2 border border-border/30 text-sm rounded-md'>
-                  <option class='p-4' value='client'>Client</option>
-                  <option class='p-4' value='parent'>Parent</option>
-                </select>
-              </div>
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredName' oneLine label='Insured Name' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredDOB' oneLine label='Insured DOB' type='date' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredAddress' oneLine label='Insured Address' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredSSN' oneLine label='Insured SSN' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredEmployer' oneLine label='Insured Employer' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insurancePlan' oneLine label='Insurance Plan' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceMemberID' oneLine label='Member ID' inputMode='numeric' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceCopay' oneLine label='Copay' inputMode='numeric' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceDeductible' oneLine label='Deductible' inputMode='numeric' />
-              <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.requiresPreAuthorization' oneLine oneLine label='Requires Pre-Authorization?' type='checkbox' />
+          <section class='space-y-2'>
+            <div class='flex items-center mb-1 gap-4 text-lg'>
+              <Label className='md:text-base'>Is your provider Medicaid?</Label>
+              <fieldset class='inline-flex gap-2'>
+                <input name='insuranceProviderIsMedicaid' type='radio' class='accent-primary' value='true' checked />
+                <Label className='text-base leading-1 pr-2'>Yes</Label>
+                <input id='insuranceProviderIsMedicaid' name='insuranceProviderIsMedicaid' type='radio' class='accent-primary' value='false' />
+                <Label className='text-base leading-1'>No</Label>
+              </fieldset>
             </div>
 
-            <Button id='btn-add-insurance' variant={"outline"} size={"lg"} class='my-4 max-w-fit border-border/30 bg-accent/20 shadow hover:bg-accent/20 lg:bg-background' type='button' onclick='addSecondaryInsurance'> Add Secondary Insurance </Button>
-            <div transition:animate='fade' id='secondary-insurance' class='relative'>
-              <h3 class='py-4 pr-4 text-lg font-medium md:text-xl col-span-2 border-b'>Secondary Insurance</h3>
-              <button id='btn-remove-insurance' type='button' class='absolute top-4 right-0'>
-                <img src={XIcon.src} class='h-4 w-4 text-neutral-500 hover:text-neutral-900' />
-              </button>
-              <div class='grid gap-2 w-[60dvw] py-2'>
-                <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insurancePlan' oneLine label='Insurance Plan' />
-                <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceMemberID' oneLine label='Member ID' inputMode='numeric' />
-                <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceCopay' oneLine label='Copay' inputMode='numeric' />
-                <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceDeductible' oneLine label='Deductible' inputMode='numeric' />
-                <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.requiresPreAuthorization' oneLine label='Requires Pre-Authorization?' type='checkbox' />
+            <div transition:animate='fade' id='insurance-info'>
+              <h3 class='py-4 pr-4 text-lg font-medium md:text-xl border-b'>Primary Insurance</h3>
+              <div id='primary-insurance-info' class='w-[60dvw] py-2 grid gap-2 lg:grid-rows-6 grid-flow-col'>
+                <div class='flex items-center gap-6 pt-2'>
+                  <Label className='min-w-[7rem] text-sm lg:text-base'>Policyholder</Label>
+                  <select name='primaryInsurance.policyholder' class='h-7 px-2 border border-border/30 text-sm rounded-md'>
+                    <option class='p-4' value='client'>Client</option>
+                    <option class='p-4' value='parent'>Parent</option>
+                  </select>
+                </div>
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredName' oneLine label='Insured Name' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredDOB' oneLine label='Insured DOB' type='date' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredAddress' oneLine label='Insured Address' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredSSN' oneLine label='Insured SSN' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuredEmployer' oneLine label='Insured Employer' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insurancePlan' oneLine label='Insurance Plan' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceMemberID' oneLine label='Member ID' inputMode='numeric' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceCopay' oneLine label='Copay' inputMode='numeric' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.insuranceDeductible' oneLine label='Deductible' inputMode='numeric' />
+                <FormInput className='max-w-sm text-sm' fieldName='primaryInsurance.requiresPreAuthorization' oneLine oneLine label='Requires Pre-Authorization?' type='checkbox' />
+              </div>
+
+              <Button id='btn-add-insurance' variant={"outline"} size={"lg"} class='my-4 max-w-fit border-border/30 bg-accent/20 shadow hover:bg-accent/20 lg:bg-background' type='button' onclick='addSecondaryInsurance'> Add Secondary Insurance </Button>
+              <div transition:animate='fade' id='secondary-insurance' class='relative'>
+                <h3 class='py-4 pr-4 text-lg font-medium md:text-xl col-span-2 border-b'>Secondary Insurance</h3>
+                <button id='btn-remove-insurance' type='button' class='absolute top-4 right-0'>
+                  <img src={XIcon.src} class='h-4 w-4 text-neutral-500 hover:text-neutral-900' />
+                </button>
+                <div class='grid gap-2 w-[60dvw] py-2'>
+                  <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insurancePlan' oneLine label='Insurance Plan' />
+                  <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceMemberID' oneLine label='Member ID' inputMode='numeric' />
+                  <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceCopay' oneLine label='Copay' inputMode='numeric' />
+                  <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.insuranceDeductible' oneLine label='Deductible' inputMode='numeric' />
+                  <FormInput className='max-w-sm text-sm' fieldName='secondaryInsurance.requiresPreAuthorization' oneLine label='Requires Pre-Authorization?' type='checkbox' />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- <Spacer /> -->
-        <Button type='submit' variant='secondary' class='ml-auto mt-auto relative flex gap-2 border shadow-input w-fit px-6'>
-          <Loader2 id='btn-loader' className='h-4 w-4 animate-spin hidden' /> Submit
-        </Button>
-      </form>
-
-      <!-- 
-          <div class="flex w-full items-center justify-between">
-          
-            <div class="after:shadow-highlight relative after:pointer-events-none after:absolute after:inset-px after:rounded-[11px] after:transition">
-              {
-                
-                  <Button type="button" variant="secondary" class="relative flex gap-2 border shadow-input" onClick={moveToNextStep}>
-                    <Loader2 class={form.formState.isSubmitting ? "h-4 w-4 animate-spin" : "hidden"} /> Confirm
-                  </Button>
-                : <Button type="button" variant="default" class="relative border shadow-input" onClick={moveToNextStep}>
-                    Next Step
-                  </Button>
-              }
-            </div>
-          </div>
-        </div> -->
+          <Button type='submit' variant='secondary' class='ml-auto mt-auto relative flex gap-2 border shadow-input w-fit px-6'>
+            <Loader2 id='btn-loader' className='h-4 w-4 animate-spin hidden' /> Submit
+          </Button>
+        </form>
+      </div>
     </div>
-  </div>
+}
+
 </Layout>
